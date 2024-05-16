@@ -27,7 +27,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 WORKDIR /var/www
-COPY ./www/ .
+COPY ./php2 .
 RUN composer update
 RUN composer install
 RUN composer update --ignore-platform-reqs

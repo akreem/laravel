@@ -23,7 +23,7 @@ services:
 
   php1:
     build: 
-      dockerfile: Dockerfile
+      dockerfile: ./php1/Dockerfile
     command: bash -c "php artisan migrate:fresh --seed && php-fpm"
     volumes:
       - php1VOL:/var/www/public
@@ -35,7 +35,7 @@ services:
 
   php2:
     build: 
-      dockerfile: Dockerfile
+      dockerfile: ./php2/Dockerfile
     #command: bash -c "php artisan migrate && php-fpm"
     volumes:
       - php2VOL:/var/www/public
