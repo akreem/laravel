@@ -1,0 +1,87 @@
+services:
+  nginx1:
+    image: nginx
+    ports:
+      - "8085:80"
+    volumes:
+      - ./nginx1:/etc/nginx/conf.d
+      - ./php1:/var/www
+    depends_on:
+      - php1
+      - db
+
+  nginx2:
+    image: nginx
+    ports:
+      - "8086:80"
+    volumes:
+      - ./nginx2:/etc/nginx/conf.d
+      - ./php2:/var/www
+    depends_on:
+      - php2
+      - db
+
+  php1:
+    build: 
+      dockerfile: Dockerfile
+    command: bash -c "php artisan migrate:fresh --seed && php-fpm"
+    volumes:
+      - ./php1:/var/www/public
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "9005:9000"
+
+  php2:
+    build: 
+      dockerfile: Dockerfile
+    #command: bash -c "php artisan migrate:fresh --seed && php-fpm"
+    volumes:
+      - ./php2:/var/www/public
+    depends_on:
+      - php1
+    ports:
+      - "9006:9000"
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: laravel_password
+    ports:
+      - "3376:3306"
+    healthcheck: 
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    
+  phpmyadmin:
+    image: phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - 8082:80
+
+  mailserver: 
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025" 
+      - "8025:8025" 
+    volumes:
+      - mailhog_data:/data
+  
+  traefik:
+    image: traefik
+    command: --api.insecure=true --providers.docker
+    ports:
+      - 8083:8080
+      - 8084:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+volumes:
+  mailhog_data:
