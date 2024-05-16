@@ -5,7 +5,7 @@ services:
       - "8085:80"
     volumes:
       - ./nginx1:/etc/nginx/conf.d
-      - ./php1:/var/www
+      - php1VOL:/var/www/public
     depends_on:
       - php1
       - db
@@ -16,7 +16,7 @@ services:
       - "8086:80"
     volumes:
       - ./nginx2:/etc/nginx/conf.d
-      - ./php2:/var/www
+      - php2VOL:/var/www/public
     depends_on:
       - php2
       - db
@@ -26,7 +26,7 @@ services:
       dockerfile: Dockerfile
     command: bash -c "php artisan migrate:fresh --seed && php-fpm"
     volumes:
-      - ./php1:/var/www/public
+      - php1VOL:/var/www/public
     depends_on:
       db:
         condition: service_healthy
@@ -36,9 +36,9 @@ services:
   php2:
     build: 
       dockerfile: Dockerfile
-    #command: bash -c "php artisan migrate:fresh --seed && php-fpm"
+    #command: bash -c "php artisan migrate && php-fpm"
     volumes:
-      - ./php2:/var/www/public
+      - php2VOL:/var/www/public
     depends_on:
       - php1
     ports:
@@ -85,3 +85,5 @@ services:
     
 volumes:
   mailhog_data:
+  php2VOL:
+  php1VOL:
